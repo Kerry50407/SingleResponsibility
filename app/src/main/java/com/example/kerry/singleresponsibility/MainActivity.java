@@ -5,11 +5,13 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
 
 public class MainActivity extends AppCompatActivity {
+    private ImageView image1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +28,11 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+
+        image1 = (ImageView) findViewById(R.id.image1);
+        ImageLoader imageLoader = new ImageLoader();
+        imageLoader.setImageCache(new MemoryCache());
+        imageLoader.displayImage("http://3.bp.blogspot.com/-tGlO4xNduj0/Uo1H6zMWI5I/AAAAAAAAdcw/fHMocpvdxxY/s1600/SimplyIcon.png", image1);
     }
 
     @Override

@@ -13,39 +13,37 @@ import java.util.concurrent.Executors;
  * Created by Kerry on 2016/5/24.
  */
 public class ImageLoader {
-    ImageCache mImageCache = new ImageCache();
-    DiskCache mDiskCache = new DiskCache();
-    DoubleCache mDoubleCache = new DoubleCache();
-    boolean isUseDiskCache = false;
-    boolean isUseDoubleCache = false;
+    ImageCache mImageCache = new MemoryCache();
     ExecutorService mExecutorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
-    public void displayImage(final String url, final ImageView imageView) {
-        Bitmap bmp = null;
-        if(isUseDoubleCache) {
-            bmp = mDoubleCache.get(url);
-        } else if (isUseDiskCache) {
-            bmp = mDiskCache.get(url);
-        } else {
-            bmp = mImageCache.get(url);
-        }
-        if(bmp != null) {
-            imageView.setImageBitmap(bmp);
+    public void setImageCache(ImageCache cache) {
+        mImageCache = cache;
+    }
+
+    public void displayImage(final String imageUrl, final ImageView imageView) {
+        Bitmap bitmap = mImageCache.get(imageUrl);
+        if(bitmap != null) {
+            imageView.setImageBitmap(bitmap);
             return;
         }
-        imageView.setTag(url);
+        submitLoadRequest(imageUrl, imageView);
+    }
+
+    private void submitLoadRequest (final String imageUrl, final ImageView imageView) {
+        imageView.setTag(imageUrl);
         mExecutorService.submit(new Runnable() {
 
             @Override
             public void run() {
-                Bitmap bitmap = downloadImage(url);
+                Bitmap bitmap = downloadImage(imageUrl);
                 if(bitmap == null){
                     return;
                 }
-                if(imageView.getTag().equals(url)) {
+                imageView.setImageBitmap(bitmap);
+                if(imageView.getTag().equals(imageUrl)) {
                     imageView.setImageBitmap(bitmap);
                 }
-                mImageCache.put(url, bitmap);
+                mImageCache.put(imageUrl, bitmap);
             }
         });
     }
@@ -60,13 +58,5 @@ public class ImageLoader {
             e.printStackTrace();
         }
         return bitmap;
-    }
-
-    public void useDiskCache(boolean useDiskCache) {
-        isUseDiskCache = useDiskCache;
-    }
-
-    public void useDoubleCache(boolean useDoubleCache) {
-        isUseDoubleCache = useDoubleCache;
     }
 }
