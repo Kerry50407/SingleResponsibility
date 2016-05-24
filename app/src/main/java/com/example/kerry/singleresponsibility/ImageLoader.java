@@ -14,12 +14,23 @@ import java.util.concurrent.Executors;
  */
 public class ImageLoader {
     ImageCache mImageCache = new ImageCache();
+    DiskCache mDiskCache = new DiskCache();
+    DoubleCache mDoubleCache = new DoubleCache();
+    boolean isUseDiskCache = false;
+    boolean isUseDoubleCache = false;
     ExecutorService mExecutorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
     public void displayImage(final String url, final ImageView imageView) {
-        Bitmap bitmap = mImageCache.get(url);
-        if(bitmap != null) {
-            imageView.setImageBitmap(bitmap);
+        Bitmap bmp = null;
+        if(isUseDoubleCache) {
+            bmp = mDoubleCache.get(url);
+        } else if (isUseDiskCache) {
+            bmp = mDiskCache.get(url);
+        } else {
+            bmp = mImageCache.get(url);
+        }
+        if(bmp != null) {
+            imageView.setImageBitmap(bmp);
             return;
         }
         imageView.setTag(url);
@@ -49,5 +60,13 @@ public class ImageLoader {
             e.printStackTrace();
         }
         return bitmap;
+    }
+
+    public void useDiskCache(boolean useDiskCache) {
+        isUseDiskCache = useDiskCache;
+    }
+
+    public void useDoubleCache(boolean useDoubleCache) {
+        isUseDoubleCache = useDoubleCache;
     }
 }
