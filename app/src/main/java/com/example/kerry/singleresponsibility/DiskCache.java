@@ -3,8 +3,10 @@ package com.example.kerry.singleresponsibility;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import com.jakewharton.disklrucache.DiskLruCache;
+
+import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * Created by Kerry on 2016/5/24.
@@ -16,14 +18,16 @@ public class DiskCache implements ImageCache{
     }
 
     public void put(String url, Bitmap bmp) {
-        FileOutputStream fileOutputStream = null;
-        try {
-            fileOutputStream = new FileOutputStream(cacheDir + url);
-            bmp.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream);
-        } catch( FileNotFoundException e) {
-            e.printStackTrace();
-        } finally {
-            CloseUtils.closeQuietly(fileOutputStream);
+        DiskLruCache.Editor editor = null;
+        if(editor != null) {
+            try {
+                OutputStream outputStream = editor.newOutputStream(0);
+                editor.commit();
+                CloseUtils.closeQuietly(outputStream);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
+
     }
 }
