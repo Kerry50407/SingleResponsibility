@@ -5,7 +5,6 @@ import android.graphics.BitmapFactory;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 
 /**
  * Created by Kerry on 2016/5/24.
@@ -24,13 +23,7 @@ public class DiskCache implements ImageCache{
         } catch( FileNotFoundException e) {
             e.printStackTrace();
         } finally {
-            if(fileOutputStream != null) {
-                try {
-                    fileOutputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            CloseUtils.closeQuietly(fileOutputStream);
         }
     }
 }
